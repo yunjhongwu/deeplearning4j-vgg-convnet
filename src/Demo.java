@@ -1,17 +1,19 @@
 import java.io.File;
 import java.io.IOException;
 
-import org.canova.api.records.reader.RecordReader;
-import org.canova.api.split.FileSplit;
-import org.canova.image.recordreader.ImageRecordReader;
-import org.deeplearning4j.datasets.canova.RecordReaderDataSetIterator;
+import org.datavec.api.records.reader.RecordReader;
+import org.datavec.api.split.FileSplit;
+import org.datavec.image.recordreader.ImageRecordReader;
+import org.deeplearning4j.datasets.datavec.RecordReaderDataSetIterator;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration.ListBuilder;
+import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.Layer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
 import org.deeplearning4j.nn.layers.convolution.ConvolutionLayer;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
+import org.nd4j.linalg.activations.Activation;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 
@@ -20,6 +22,7 @@ public class Demo {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		// Load model and data
+	    
 		MultiLayerNetwork vgg = ModelSerializer.restoreMultiLayerNetwork("models/vgg19.dl4jmodel");
 		MultiLayerNetwork model = getBottomLayers(vgg, bottomK);
 
@@ -54,7 +57,7 @@ public class Demo {
 		// Get bottom k layers from the pretrained model
 
 		System.out.println("Reconstructing...");
-		ListBuilder conf = new NeuralNetConfiguration.Builder().activation("relu").list();
+		ListBuilder conf = new NeuralNetConfiguration.Builder().activation(Activation.RELU).list();
 		k = Math.min(k, net.getnLayers());
 
 		for (int i = 0; i < k; i++) {
@@ -70,7 +73,8 @@ public class Demo {
 					.name("dummy").build());
 		}
 
-		MultiLayerNetwork model = new MultiLayerNetwork(conf.backprop(false).cnnInputSize(224, 224, 3).build());
+		MultiLayerNetwork model = new MultiLayerNetwork(conf.backprop(false)
+		        .setInputType(InputType.convolutional(224, 224, 3)).build());
 		model.init();
 
 		for (int i = 0; i < k; i++) {

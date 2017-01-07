@@ -1,12 +1,14 @@
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.inputs.InputType;
 import org.deeplearning4j.nn.conf.layers.ConvolutionLayer;
 import org.deeplearning4j.nn.conf.layers.SubsamplingLayer;
+import org.nd4j.linalg.activations.Activation;
 
 public class VGGConvNetE {
 
 	public static MultiLayerConfiguration conf() {
-		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder().activation("relu").list()
+		MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder().activation(Activation.RELU).list()
 				.layer(0,
 						new ConvolutionLayer.Builder().kernelSize(3, 3).stride(1, 1).padding(1, 1).nIn(3).nOut(64)
 								.build())
@@ -39,7 +41,7 @@ public class VGGConvNetE {
 				.layer(19, new ConvolutionLayer.Builder().kernelSize(3, 3).stride(1, 1).padding(1, 1).nOut(512).build())
 				.layer(20, new SubsamplingLayer.Builder().poolingType(SubsamplingLayer.PoolingType.MAX).kernelSize(2, 2)
 						.stride(2, 2).build())
-				.backprop(false).cnnInputSize(224, 224, 3).build();
+				.backprop(false).setInputType(InputType.convolutional(224, 224, 3)).build();
 
 		return conf;
 	}
